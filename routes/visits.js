@@ -69,25 +69,52 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.put('/updateVisitDate/:id', async (req, res) => {
+    const visitId = req.params.id;
+    const { newDate } = req.body;
 
-// Get a visit by ID
-/*
-router.get('/:id', async (req, res) => {
     try {
-        const visit = await Visit.findById(req.params.id)
-            .populate('service')
-            .populate('worker')
-            .populate('client');
-        
+        // Pobierz wizytę, którą chcemy zaktualizować
+        const visit = await Visit.findById(visitId);
         if (!visit) {
-            return res.status(404).json({ message: 'Visit not found' });
+            return res.status(404).json({ message: 'Nie znaleziono wizyty' });
         }
 
-        res.json(visit);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+        // Sprawdź, czy pracownik nie jest zajęty w nowym terminie
+        const conflictingVisit = await Visit.findOne({
+            worker: visit.worker,
+            date: newDate
+        });
+
+        if (conflictingVisit) {
+            return res.status(400).json({ message: 'Ten pracownik posiada juz inną rezerwację na ten termin.' });
+        }
+
+        // Zaktualizuj datę wizyty
+        visit.date = newDate;
+        await visit.save();
+
+        res.json({ message: 'Data rezerwacji została zmieniona', visit });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
-*/
+
+
+router.delete('/cancelVisit/:id', async (req, res) => {
+    try {
+        const visitId = req.params.id;
+
+        const visit = await Visit.findByIdAndDelete(visitId);
+        if (!visit) {
+            return res.status(404).json({ message: 'Nie znaleziono wizyty' });
+        }
+
+        res.json({ message: 'Wizyta została anulowana!' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 
 module.exports = router;
