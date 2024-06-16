@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
 });
 
 
-// Create a service
+//tworzenie nowej uslugi
 router.post('/', async (req, res) => {
     const service = new Service({
         name: req.body.name

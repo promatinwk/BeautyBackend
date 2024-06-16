@@ -7,7 +7,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 const User = require('../models/user')
 
-//Getting all users
 router.get('/', async (req,res)=>{
   try{
     const users = await User.find();
@@ -16,11 +15,13 @@ router.get('/', async (req,res)=>{
     res.status(500).json({message: err.message})
   }
 })
-//Getting one user
+
+
 router.get('/:id',getUser,(req,res)=>{
    res.send(res.user);
 })
-//Create one user - REGISTER
+
+//TWORZENIE UZYTKOWNIKA 
 router.post('/register',async (req,res)=>{
     const { firstName, lastName, username, password, phoneNumber, email } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -132,35 +133,7 @@ router.put('/updatePhoneNumber/:id', async (req, res) => {
 
 
 
-
-//Update one user
-router.patch('/:id',getUser, async (req,res)=>{
-    if (req.body.phoneNumber != null){
-        res.user.phoneNumber = req.body.phoneNumber
-    }
-    try{
-        const updatedUser = await res.user.save();
-        res.json(updatedUser);
-    }catch(err){
-        res.status(400).json({message: err.message});
-    }
-})
-//Delete one user
-
-router.delete('/:id', getUser,async (req, res) => {
-    try {
-        const deletedUser = await User.findByIdAndDelete(user);
-        if (!deletedUser) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.status(200).json({ message: 'User deleted successfully' });
-    } catch (err) {
-        res.status(400).json({ error: err.message });
-    }
-});
-
-
-//LOGIN USER
+//LOGOWANIE USERA
 
 router.post('/login', async(req,res)=>{
     const { username, password } = req.body;

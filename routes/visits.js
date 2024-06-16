@@ -5,10 +5,10 @@ const jwt = require('jsonwebtoken');
 const Visit = require('../models/visit');
 const Service = require('../models/service');
 const Worker = require('../models/worker');
-const User = require('../models/user'); // Assuming you have a User model
+const User = require('../models/user');  
 
 
-// Create a visit
+// Utworzenie wizyty
 router.post('/', async (req, res) => {
     const {serviceId, workerId, clientId, date } = req.body;
 
@@ -74,13 +74,13 @@ router.put('/updateVisitDate/:id', async (req, res) => {
     const { newDate } = req.body;
 
     try {
-        // Pobierz wizytę, którą chcemy zaktualizować
+        //Pobranie wizity ktora chcemy zaktualizowac
         const visit = await Visit.findById(visitId);
         if (!visit) {
             return res.status(404).json({ message: 'Nie znaleziono wizyty' });
         }
 
-        // Sprawdź, czy pracownik nie jest zajęty w nowym terminie
+        // Sprawdzenie, czy pracownik nie jest zajęty w nowym terminie
         const conflictingVisit = await Visit.findOne({
             worker: visit.worker,
             date: newDate
@@ -90,7 +90,6 @@ router.put('/updateVisitDate/:id', async (req, res) => {
             return res.status(400).json({ message: 'Ten pracownik posiada juz inną rezerwację na ten termin.' });
         }
 
-        // Zaktualizuj datę wizyty
         visit.date = newDate;
         await visit.save();
 
